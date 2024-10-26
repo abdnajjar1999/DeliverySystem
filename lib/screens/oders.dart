@@ -6,8 +6,6 @@ import 'package:durub_ali/screens/add.dart';
 import 'package:durub_ali/screens/detaels.dart';
 import 'package:durub_ali/screens/drivers/driver.dart';
 import 'package:durub_ali/screens/users/users.dart';
-import 'package:durub_ali/widget/drowe.dart';
-import 'package:durub_ali/widget/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -869,6 +867,171 @@ Widget _buildBatchAssignmentHeader() {
   );
 }
 
+Widget _buildOrderCard(Order1 order, String orderId) {
+  return Card(
+    margin: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+    elevation: 2,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(
+        color: order.isDriverAssigned ? secondaryColor.withOpacity(0.5) : Colors.transparent,
+        width: 2,
+      ),
+    ),
+    child: InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderDetailsScreen(order: order, orderId: orderId),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // Checkbox for selection
+            Checkbox(
+              value: selectedOrders.contains(order.orderNumber),
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value ?? false) {
+                    selectedOrders.add(order.orderNumber);
+                  } else {
+                    selectedOrders.remove(order.orderNumber);
+                    selectAll = false;
+                  }
+                });
+              },
+            ),
+            // Profile Image
+            Expanded(
+              flex: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: _buildProfileImage(order.profileImageUrl),
+              ),
+            ),
+            // Username
+            Expanded(
+              flex: 2,
+              child: Text(
+                order.username,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                ),
+              ),
+            ),
+            // Customer Name
+            Expanded(
+              flex: 2,
+              child: Text(
+                order.customerName,
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            // Phone Number
+            Expanded(
+              flex: 2,
+              child: Text(
+                order.phone.toString(),
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            // Region
+            Expanded(
+              flex: 2,
+              child: Text(
+                order.region,
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            // Order Number
+            Expanded(
+              flex: 2,
+              child: Text(
+                order.orderNumber,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: secondaryColor,
+                ),
+              ),
+            ),
+            // Driver Dropdown
+            Expanded(
+              flex: 2,
+              child: _buildEnhancedDriverDropdown(order),
+            ),
+            // Action Buttons
+            Expanded(
+              flex: 2,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.save, color: secondaryColor),
+                    onPressed: () async {
+                      if (selectedDrivers[order.orderNumber] != null) {
+                        try {
+                          await FirebaseFirestore.instance
+                              .collection('orders')
+                              .doc(orderId)
+                              .update({
+                            'driverID': selectedDrivers[order.orderNumber],
+                            'isDriverAssigned': true,
+                          });
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Driver assigned successfully'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error assigning driver: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please select a driver first'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                      }
+                    },
+                    tooltip: 'Save changes',
+                  ),
+                  if (order.isDriverAssigned)
+                    Tooltip(
+                      message: 'Driver Assigned',
+                      child: Icon(Icons.check_circle, color: secondaryColor, size: 20),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
 Widget _buildEnhancedDriverDropdown(Order1 order) {
   return Container(
