@@ -1,7 +1,8 @@
 
 import 'package:durub_ali/auth/login.dart';
 import 'package:durub_ali/firebase_options.dart';
-import 'package:durub_ali/screens/Driversmap.dart';
+import 'package:durub_ali/rawaje3.dart';
+import 'package:durub_ali/screens/drivers/Driversmap.dart';
 import 'package:durub_ali/screens/OrderHistoryScreen.dart';
 import 'package:durub_ali/screens/add.dart';
 import 'package:durub_ali/screens/drivers/driver.dart';
@@ -87,6 +88,19 @@ class DashboardScreen extends StatefulWidget {
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
+  final List<TrainingRecord> dummyRecords = [
+    TrainingRecord(
+      id: 'TR001',
+      title: 'Training Course 1',
+      status: 'In Progress',
+      startDate: '21/10/2024',
+      endDate: '25/10/2024',
+      type: 'Online',
+      progress: 75,
+      description: 'Description of training course',
+    ),
+    // Add more records as needed
+  ];
 
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
@@ -131,6 +145,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     padding: EdgeInsets.symmetric(vertical: 8),
                     children: [
   _buildNavItem(context, 'Dashboard', Icons.dashboard, DashboardScreen()),
+  _buildNavItem(context, 'المرتجعات', Icons.dashboard, DarkThemeDataTable(records: dummyRecords)),
   _buildNavItem(context, 'Users', Icons.people, UserDashboard()),
 
   _buildNavItem(

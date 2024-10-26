@@ -1,5 +1,5 @@
 import 'package:durub_ali/auth/login.dart';
-import 'package:durub_ali/screens/Driversmap.dart';
+import 'package:durub_ali/screens/drivers/Driversmap.dart';
 import 'package:durub_ali/main.dart';
 import 'package:durub_ali/screens/OrderHistoryScreen.dart';
 import 'package:durub_ali/screens/add.dart';

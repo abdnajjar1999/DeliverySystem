@@ -138,7 +138,7 @@ Widget _buildOrderList() {
   return FutureBuilder<QuerySnapshot>(
     future: FirebaseFirestore.instance
         .collection('orders')
-        .where('status', isEqualTo: "Completed")
+        .where('status', isEqualTo: "Completed" )
         .get(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
