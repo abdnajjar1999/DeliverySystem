@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:durub_ali/models/models.dart';
 import 'package:durub_ali/fillters/phone.dart';
 
+
 final Color primaryColor = Color(0xFF1A237E); // Darker blue
 final Color secondaryColor = Color(0xFF2196F3); // Brighter blue
 final Color accentColor = Color(0xFF3F51B5); // Indigo
