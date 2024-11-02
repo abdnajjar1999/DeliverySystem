@@ -46,6 +46,9 @@ dependencies:
   printing: ^5.13.3
   webview_flutter_plus: ^0.4.7
   google_fonts: ^6.2.1
+  flutter_localizations:
+    sdk: flutter
+  adaptive_scrollbar: ^2.1.2
 
 
 dev_dependencies:

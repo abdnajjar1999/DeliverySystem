@@ -8,8 +8,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController(text: "m@m.com");
+  final TextEditingController passwordController = TextEditingController(text: "909090");
   bool _isLoading = false;
 
   Future<void> _login() async {

@@ -1,25 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PhoneNumberSearchWidget extends StatefulWidget {
+class CustomerNameSearchWidget extends StatefulWidget {
   final ValueChanged<String?> onChanged;
-  final TextEditingController phoneNumberController;
+  final TextEditingController customerNameController;
   final String? label;
 
-  const PhoneNumberSearchWidget({
+  const CustomerNameSearchWidget({
     Key? key,
     required this.onChanged,
-    required this.phoneNumberController,
+    required this.customerNameController,
     this.label,
   }) : super(key: key);
 
   @override
-  _PhoneNumberSearchWidgetState createState() => _PhoneNumberSearchWidgetState();
+  _CustomerNameSearchWidgetState createState() => _CustomerNameSearchWidgetState();
 }
 
-class _PhoneNumberSearchWidgetState extends State<PhoneNumberSearchWidget> {
+class _CustomerNameSearchWidgetState extends State<CustomerNameSearchWidget> {
   List<DocumentSnapshot> searchResults = [];
   Timer? _debounce;
   bool isLoading = false;
@@ -28,23 +27,13 @@ class _PhoneNumberSearchWidgetState extends State<PhoneNumberSearchWidget> {
   @override
   void initState() {
     super.initState();
-    if (widget.phoneNumberController.text.isNotEmpty) {
-      _searchOrdersByPhone(widget.phoneNumberController.text);
+    if (widget.customerNameController.text.isNotEmpty) {
+      _searchByCustomerName(widget.customerNameController.text);
     }
   }
 
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (!isDisposed) {
-        _searchOrdersByPhone(query);
-      }
-    });
-  }
-
-  Future<void> _searchOrdersByPhone(String phoneNumber) async {
-    if (phoneNumber.isEmpty || isDisposed) {
+  Future<void> _searchByCustomerName(String name) async {
+    if (name.isEmpty || isDisposed) {
       if (!isDisposed) {
         setState(() {
           searchResults = [];
@@ -61,10 +50,13 @@ class _PhoneNumberSearchWidgetState extends State<PhoneNumberSearchWidget> {
     }
 
     try {
+      // تحويل النص إلى lowercase والتأكد من البحث بما يتوافق مع قاعدة البيانات
+      final queryText = name.toLowerCase().trim();
+
       final QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('orders')
-          .where('رقم الهاتف', isGreaterThanOrEqualTo: phoneNumber)
-          .where('رقم الهاتف', isLessThan: phoneNumber + 'z')
+          .where('اسم العميل', isGreaterThanOrEqualTo: queryText)
+          .where('اسم العميل', isLessThanOrEqualTo: queryText + '\uf8ff')
           .limit(10)
           .get();
 
@@ -73,16 +65,33 @@ class _PhoneNumberSearchWidgetState extends State<PhoneNumberSearchWidget> {
           searchResults = snapshot.docs;
           isLoading = false;
         });
+        
+        if (snapshot.docs.isNotEmpty) {
+          widget.onChanged(name);
+        } else {
+          widget.onChanged(null);
+        }
       }
     } catch (e) {
-      print('Error searching orders: $e');
+      print('Error searching orders by customer name: $e');
       if (!isDisposed && mounted) {
         setState(() {
           searchResults = [];
           isLoading = false;
         });
+        widget.onChanged(null);
       }
     }
+  }
+
+  void _onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (!isDisposed) {
+        _searchByCustomerName(value);
+      }
+    });
   }
 
   @override
@@ -95,18 +104,17 @@ class _PhoneNumberSearchWidgetState extends State<PhoneNumberSearchWidget> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: widget.phoneNumberController,
+      controller: widget.customerNameController,
       decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: 'Search by phone number',
+        labelText: widget.label ?? 'اسم العميل',
+        hintText: 'ادخل اسم العميل',
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        prefixIcon: const Icon(Icons.phone),
-        suffixIcon: widget.phoneNumberController.text.isNotEmpty
+        prefixIcon: const Icon(Icons.person),
+        suffixIcon: widget.customerNameController.text.isNotEmpty
             ? IconButton(
                 icon: const Icon(Icons.clear),
                 onPressed: () {
-                  widget.phoneNumberController.clear();
-                  widget.onChanged(null);
+                  widget.customerNameController.clear();
                   if (!isDisposed) {
                     setState(() {
                       searchResults = [];
@@ -127,15 +135,11 @@ class _PhoneNumberSearchWidgetState extends State<PhoneNumberSearchWidget> {
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      keyboardType: TextInputType.phone,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(10),
-      ],
       onChanged: (value) {
         _onSearchChanged(value);
-        widget.onChanged(value);
       },
+      textDirection: TextDirection.rtl,
+      textAlign: TextAlign.right,
     );
   }
 }

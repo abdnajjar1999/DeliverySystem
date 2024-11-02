@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Order1 {
   String profileImageUrl;
+  String status;
   DateTime timestamp;
   String userId;
   String username;
@@ -14,11 +15,15 @@ class Order1 {
   bool isDriverAssigned;
   double deliveryCost;
   bool isCompleted;
-  String? driverName; 
-  String? phone; 
-String location;
+  String? driverName;
+  String? phone;
+  String location;
+  String weight;
+  double COD;
+  String PaymentMethod;
   Order1({
-     this.phone,
+    required this.status,
+    this.phone,
     required this.profileImageUrl,
     required this.timestamp,
     required this.userId,
@@ -33,18 +38,24 @@ String location;
     required this.deliveryCost,
     this.isCompleted = false,
     this.driverName,
-    required this.location
+    required this.location,
+    required this.weight,
+    required this.COD,
+    required this.PaymentMethod,
   });
 
   // Create an Order1 object from Firestore data (fromMap)
   factory Order1.fromMap(Map<String, dynamic> data) {
     return Order1(
+      PaymentMethod: data['طريقة الدفع'] ?? '',
+      COD: data['COD']??0.0,
+      status: data['status'] ?? 'nuUl',
       profileImageUrl: data['profileImageUrl'] ?? '',
       timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
       userId: data['userId'] ?? '',
       username: data['username'] ?? '',
       customerName: data['اسم العميل'] ?? '',
-      price: data['السعر'].toString() ?? "",
+      price: data['السعر'].toString() ?? '',
       notes: data['الملاحظات'] ?? '',
       region: data['المنطقة'] ?? '',
       orderNumber: data['رقم الطلب'] ?? '',
@@ -52,15 +63,18 @@ String location;
       isDriverAssigned: data['isDriverAssigned'] ?? false,
       deliveryCost: data['deliveryCost']?.toDouble() ?? 0.0,
       isCompleted: data['isCompleted'] ?? false,
-      driverName: data['driverName'] ?? null,  // Retrieve driverName if available
-      phone: data['رقم الهاتف'] ?? null, 
+      driverName: data['driverName'],
+      phone: data['رقم الهاتف'],
       location: data['رابط خريطة جوجل'] ?? '',
+      weight: data['الوزن'] ?? '',
     );
   }
 
   // Convert the Order1 object to a map to store it in Firestore (toMap)
   Map<String, dynamic> toMap() {
     return {
+      "طريقة الدفع": PaymentMethod,
+      "COD": COD,
       'profileImageUrl': profileImageUrl,
       'timestamp': Timestamp.fromDate(timestamp),
       'userId': userId,
@@ -74,9 +88,10 @@ String location;
       'isDriverAssigned': isDriverAssigned,
       'deliveryCost': deliveryCost,
       'isCompleted': isCompleted,
-      'driverName': driverName,  // Add driverName to the map if not null
-      'رقم الهاتف': phone, 
-      'رابط خريطة جوجل': location 
+      'driverName': driverName,
+      'رقم الهاتف': phone,
+      'رابط خريطة جوجل': location,
+      'الوزن': weight,
     };
   }
 }

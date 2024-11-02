@@ -77,8 +77,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   void _saveOrder() {
     cloud_firestore.FirebaseFirestore.instance.collection('orders').doc(widget.orderId).update({
-
-      'رقم الهاتف': phoneController.text, // Save phone number
+      'رقم الهاتف': phoneController.text,
       'username': usernameController.text,
       'اسم العميل': customerNameController.text,
       'السعر': double.parse(priceController.text),
@@ -88,7 +87,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       'مواصفات الطلب': orderSpecificationsController.text,
       'deliveryCost': double.parse(deliveryCostController.text),
       'timestamp': cloud_firestore.Timestamp.fromDate(selectedDate), 
-            'رابط خريطة جوجل': LocationController.text, 
+      'رابط خريطة جوجل': LocationController.text, 
 
     }).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order updated successfully!')));
